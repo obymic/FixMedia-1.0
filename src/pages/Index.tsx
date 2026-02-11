@@ -1,17 +1,21 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import Header from '@/components/Header';
 import DropZone from '@/components/DropZone';
 import RepairQueue from '@/components/RepairQueue';
 import FeatureCards from '@/components/FeatureCards';
-import { useFileRepair } from '@/hooks/useFileRepair';
+import BeforeAfter from '@/components/BeforeAfter';
+import StatsSection, { useAppStats } from '@/components/StatsSection';
+import { useFileRepair, type RepairFile } from '@/hooks/useFileRepair';
 import { Button } from '@/components/ui/button';
 import { Play, Download, Trash2, Wrench } from 'lucide-react';
 
 const Index = () => {
   const { files, isProcessing, addFiles, removeFile, repairAll, clearAll, downloadFile } = useFileRepair();
+  const { stats, trackRepair, refreshStats } = useAppStats();
   const [hasStarted, setHasStarted] = useState(false);
+  const [compareFile, setCompareFile] = useState<RepairFile | null>(null);
 
   const handleFilesAdded = useCallback(
     (newFiles: File[]) => {
@@ -25,14 +29,24 @@ const Index = () => {
     setHasStarted(true);
     toast.info('Starting repair process...');
     await repairAll();
-    const completed = files.filter(f => f.status === 'completed').length;
-    const failed = files.filter(f => f.status === 'failed').length;
-    if (failed > 0) {
-      toast.warning(`Repair complete: ${completed} succeeded, ${failed} failed`);
+    
+    // Track repairs in stats
+    const completed = files.filter(f => f.status === 'queued' || f.status === 'failed');
+    for (const f of completed) {
+      if (f.type === 'image' || f.type === 'video') {
+        await trackRepair(f.type);
+      }
+    }
+    refreshStats();
+    
+    const completedCount = files.filter(f => f.status === 'completed').length;
+    const failedCount = files.filter(f => f.status === 'failed').length;
+    if (failedCount > 0) {
+      toast.warning(`Repair complete: ${completedCount} succeeded, ${failedCount} failed`);
     } else {
       toast.success('All files repaired successfully!');
     }
-  }, [repairAll, files]);
+  }, [repairAll, files, trackRepair, refreshStats]);
 
   const handleDownloadAll = useCallback(() => {
     const completed = files.filter(f => f.status === 'completed');
@@ -133,7 +147,17 @@ const Index = () => {
 
         {/* Repair queue */}
         <div className="mb-16">
-          <RepairQueue files={files} onRemove={removeFile} onDownload={downloadFile} />
+          <RepairQueue
+            files={files}
+            onRemove={removeFile}
+            onDownload={downloadFile}
+            onCompare={(file) => setCompareFile(file)}
+          />
+        </div>
+
+        {/* Stats */}
+        <div className="mb-16">
+          <StatsSection stats={stats} />
         </div>
 
         {/* Features */}
@@ -155,6 +179,13 @@ const Index = () => {
           </p>
         </motion.footer>
       </main>
+
+      {/* Before/After Modal */}
+      <AnimatePresence>
+        {compareFile && (
+          <BeforeAfter file={compareFile} onClose={() => setCompareFile(null)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
