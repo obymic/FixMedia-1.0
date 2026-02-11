@@ -1,11 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileImage, FileVideo, Check, X, Download, Trash2, Loader2, AlertTriangle, HelpCircle } from 'lucide-react';
+import { FileImage, FileVideo, Check, X, Download, Trash2, Loader2, AlertTriangle, HelpCircle, Eye } from 'lucide-react';
 import type { RepairFile } from '@/hooks/useFileRepair';
 
 interface RepairQueueProps {
   files: RepairFile[];
   onRemove: (id: string) => void;
   onDownload: (file: RepairFile) => void;
+  onCompare?: (file: RepairFile) => void;
 }
 
 function formatSize(bytes: number): string {
@@ -47,7 +48,7 @@ function getFileIcon(type: RepairFile['type']) {
   }
 }
 
-const RepairQueue = ({ files, onRemove, onDownload }: RepairQueueProps) => {
+const RepairQueue = ({ files, onRemove, onDownload, onCompare }: RepairQueueProps) => {
   if (files.length === 0) return null;
 
   return (
@@ -129,6 +130,17 @@ const RepairQueue = ({ files, onRemove, onDownload }: RepairQueueProps) => {
 
               {/* Actions */}
               <div className="flex items-center gap-1">
+                {file.status === 'completed' && file.type === 'image' && onCompare && (
+                  <motion.button
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    onClick={() => onCompare(file)}
+                    className="p-2 rounded-lg bg-secondary text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                    title="Compare before/after"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </motion.button>
+                )}
                 {file.status === 'completed' && (
                   <motion.button
                     initial={{ scale: 0 }}
