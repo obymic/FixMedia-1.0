@@ -12,6 +12,9 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
+  optimizeDeps: {
+    exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util'],
+  },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {
