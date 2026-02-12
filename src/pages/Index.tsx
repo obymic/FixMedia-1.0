@@ -85,7 +85,7 @@ const Index = () => {
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-xs font-mono mb-6"
           >
             <Wrench className="w-3.5 h-3.5" />
-            Client-side file repair engine
+            AI-powered media restoration
           </motion.div>
 
           <h1 className="text-4xl md:text-6xl font-display font-bold tracking-tight mb-4">
@@ -94,8 +94,8 @@ const Index = () => {
             <span className="text-gradient">Videos & Photos</span>
           </h1>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-            Fix corrupted media files instantly in your browser. No uploads, no accounts, 
-            no server processing — your files stay private.
+            Restore damaged, aged, or corrupted photos using AI. 
+            Fix scratches, fading, discoloration, and artifacts instantly.
           </p>
         </motion.div>
 
@@ -175,7 +175,7 @@ const Index = () => {
           className="text-center py-8 border-t border-border"
         >
           <p className="text-xs text-muted-foreground font-mono">
-            FixMedia — 100% browser-based file repair. No data leaves your device.
+            FixMedia — AI-powered media restoration engine.
           </p>
         </motion.footer>
       </main>
